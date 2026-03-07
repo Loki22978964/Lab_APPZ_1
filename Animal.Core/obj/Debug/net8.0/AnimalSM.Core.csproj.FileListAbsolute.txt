@@ -1,0 +1,12 @@
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\bin\Debug\net8.0\AnimalSM.Core.deps.json
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\bin\Debug\net8.0\AnimalSM.Core.dll
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\bin\Debug\net8.0\AnimalSM.Core.pdb
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\AnimalSM.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\AnimalSM.Core.AssemblyInfoInputs.cache
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\AnimalSM.Core.AssemblyInfo.cs
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\AnimalSM.Core.csproj.CoreCompileInputs.cache
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\AnimalSM.Core.dll
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\refint\AnimalSM.Core.dll
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\AnimalSM.Core.pdb
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\ref\AnimalSM.Core.dll
+C:\Users\Loki\Desktop\Animal_lab1\Animal.Core\obj\Debug\net8.0\AnimalSM.Core.sourcelink.json
