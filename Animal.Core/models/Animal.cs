@@ -25,17 +25,24 @@ namespace AnimalSM.Core.models
             this.IsTooTired = false;
         }
 
+        public event Action OnFed;
+        public event Action OnDied;
+
         public virtual void Eat()
         {
             if (!IsAlive)
             {
                 Console.WriteLine("the dead don't eat");
+                
                 return;
             }
+
+
 
             this.LastFeedingTime = DateTime.Now;
             this.IsHappy = true;
             this.IsTooTired = false;
+            OnFed?.Invoke();
             OnEat();
         }
 
@@ -50,6 +57,7 @@ namespace AnimalSM.Core.models
         {
             IsAlive = false;
             Console.WriteLine($"{this.Name} the {GetType().Name.ToLower()} died(((");
+            OnDied?.Invoke();
         }
 
         protected virtual bool CanMove()

@@ -13,6 +13,43 @@ namespace AnimalSM.Logic.validators
         public AnimalHealthValidator(IOwner owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+
+            if (_owner.Pet != null)
+            {
+                SubscribeToPetEvents();
+            }
+        }
+
+        private void SubscribeToPetEvents()
+        {
+            if (_owner.Pet != null)
+            {
+                _owner.Pet.OnFed += HandlePetFed;
+                _owner.Pet.OnDied += HandlePetDied;
+            }
+        }
+
+        private void HandlePetFed()
+        {
+            CheckOfTheDay();
+            CurrentFoodIntake++;
+
+            Console.WriteLine($"[Validator] Тварина поїла. Порцій за сьогодні: {CurrentFoodIntake}");
+
+            if (CurrentFoodIntake > MAX_FOOD_INTAKE)
+            {
+                Console.WriteLine("[Validator] ПЕРЕГОДУВАННЯ!");
+                _owner.Pet.Died();
+            }
+        }
+
+        private void HandlePetDied()
+        {
+            if (_owner.Pet != null)
+            {
+                _owner.Pet.OnFed -= HandlePetFed;
+                _owner.Pet.OnDied -= HandlePetDied;
+            }
         }
 
         public void CheckOfTheDay()
@@ -37,26 +74,17 @@ namespace AnimalSM.Logic.validators
 
         public void PetFeeding()
         {
-            if (_owner.Pet == null) return;
+            if (_owner.Pet == null || !_owner.Pet.IsAlive) return;
 
-            CheckOfTheDay();
-
-            var hours = (int)Math.Floor((DateTime.Now - _owner.Pet.LastFeedingTime).TotalHours);
-
+            var hours = (DateTime.Now - _owner.Pet.LastFeedingTime).TotalHours;
             if (hours >= 24)
             {
-                _owner.Pet.Died();
-                return;
-            }
-
-            if (CurrentFoodIntake >= MAX_FOOD_INTAKE)
-            {
+                Console.WriteLine("[Validator] Занадто пізно... Тварина померла від голоду.");
                 _owner.Pet.Died();
                 return;
             }
 
             _owner.Feed();
-            CurrentFoodIntake++;
         }
     }
 }
