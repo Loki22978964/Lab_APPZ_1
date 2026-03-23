@@ -1,5 +1,6 @@
 ﻿using AnimalSM.Core.interfaces;
 using AnimalSM.Logic.validators;
+using AnimalSM.Core.models;
 using System.Linq;
 using System.Collections.Generic;
 using System;
@@ -149,7 +150,7 @@ namespace AnimalSM.Logic
             }
         }
 
-        private void ExecuteMove(IAnimal pet)
+        private void ExecuteMove(Animal pet)
         {
             if (pet is IMovable movable)
             {
@@ -161,7 +162,7 @@ namespace AnimalSM.Logic
             }
         }
 
-        private void ExecuteFly(IAnimal pet)
+        private void ExecuteFly(Animal pet)
         {
             if (pet is IFlyable flyable)
             {
@@ -173,7 +174,7 @@ namespace AnimalSM.Logic
             }
         }
 
-        private void ExecuteSleep(IAnimal pet)
+        private void ExecuteSleep(Animal pet)
         {
             pet.Sleep();
         }

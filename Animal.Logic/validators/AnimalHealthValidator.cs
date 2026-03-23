@@ -79,7 +79,7 @@ namespace AnimalSM.Logic.validators
             var hours = (DateTime.Now - _owner.Pet.LastFeedingTime).TotalHours;
             if (hours >= 24)
             {
-                Console.WriteLine("[Validator] Занадто пізно... Тварина померла від голоду.");
+                Console.WriteLine("[Validator] Too late... The animal died of hunger..");
                 _owner.Pet.Died();
                 return;
             }

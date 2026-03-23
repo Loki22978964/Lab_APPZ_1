@@ -1,8 +1,10 @@
-﻿namespace AnimalSM.Core.interfaces
+﻿using AnimalSM.Core.models;
+
+namespace AnimalSM.Core.interfaces
 {
     public interface IAnimalFactory
     {
-        IAnimal? CreateAnimal(int typeId, string? name = null);
+        Animal? CreateAnimal(int typeId, string? name = null);
         IEnumerable<int> GetAvailableAnimalTypeIds();
     }
 }

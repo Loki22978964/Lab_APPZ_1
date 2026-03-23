@@ -3,7 +3,7 @@ using System;
 
 namespace AnimalSM.Core.models
 {
-    public abstract class Animal : IAnimal
+    public abstract class Animal 
     {
         public string Name { get; protected set; }
         public bool IsAlive { get; protected set; }

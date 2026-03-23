@@ -1,4 +1,4 @@
-using AnimalSM.Core.interfaces;
+using AnimalSM.Core.models;
 
 namespace AnimalSM.Core.interfaces
 {
@@ -6,8 +6,8 @@ namespace AnimalSM.Core.interfaces
     {
         string Name { get; }
         Guid Id { get; }
-        IAnimal? Pet { get; }
+        Animal? Pet { get; }
         void Feed();
-        void AdoptPet(IAnimal pet);
+        void AdoptPet(Animal pet);
     }
 }

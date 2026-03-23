@@ -1,4 +1,5 @@
-﻿using AnimalSM.Core.interfaces;
+﻿using AnimalSM.Core.models;
+using AnimalSM.Core.interfaces;
 using AnimalSM.Core.factories;
 using System;
 
@@ -8,7 +9,7 @@ namespace AnimalSM.Core.services
     {
         public string Name { get; }
         public Guid Id { get; }
-        public IAnimal? Pet { get; private set; }
+        public Animal? Pet { get; private set; }
 
         public Owner()
         {
@@ -16,14 +17,14 @@ namespace AnimalSM.Core.services
             this.Id = Guid.NewGuid();
         }
 
-        public Owner(string name ,IAnimal pet)
+        public Owner(string name ,Animal pet)
         {
             this.Name = name;
             this.Pet = pet;
             Id = Guid.NewGuid();
         }
 
-        public void AdoptPet(IAnimal pet)
+        public void AdoptPet(Animal pet)
         {
             this.Pet = pet;
         }
