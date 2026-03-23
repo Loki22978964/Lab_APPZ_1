@@ -9,8 +9,8 @@ namespace AnimalSM.Core.interfaces
         bool IsHappy { get; }
         DateTime LastFeedingTime { get; }
 
-        event Action OnFed;
-        event Action OnDied;
+        event Action? OnFed;
+        event Action? OnDied;
 
         void Eat();
         void Sleep();

@@ -25,8 +25,8 @@ namespace AnimalSM.Core.models
             this.IsTooTired = false;
         }
 
-        public event Action OnFed;
-        public event Action OnDied;
+        public event Action? OnFed;
+        public event Action? OnDied;
 
         public virtual void Eat()
         {
@@ -43,6 +43,7 @@ namespace AnimalSM.Core.models
             this.IsHappy = true;
             this.IsTooTired = false;
             OnFed?.Invoke();
+            if (!IsAlive) return;
             OnEat();
         }
 

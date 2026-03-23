@@ -34,11 +34,11 @@ namespace AnimalSM.Logic.validators
             CheckOfTheDay();
             CurrentFoodIntake++;
 
-            Console.WriteLine($"[Validator] Тварина поїла. Порцій за сьогодні: {CurrentFoodIntake}");
+            Console.WriteLine($"[Validator] The animal ate. Portions for today: {CurrentFoodIntake}");
 
             if (CurrentFoodIntake > MAX_FOOD_INTAKE)
             {
-                Console.WriteLine("[Validator] ПЕРЕГОДУВАННЯ!");
+                Console.WriteLine("[Validator] RE-FEEDING!");
                 _owner.Pet.Died();
             }
         }
@@ -86,5 +86,13 @@ namespace AnimalSM.Logic.validators
 
             _owner.Feed();
         }
+    }
+
+    public class TestProperties
+    {
+        public string FirstName;
+        internal string LastName;
+        protected int Age;
+        private string PhoneNumber;
     }
 }
