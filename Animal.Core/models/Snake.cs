@@ -3,10 +3,8 @@ using System;
 
 namespace AnimalSM.Core.models
 {
-    public class Snake : Animal, IMovable
+    public class Snake : Animal, IMovable, ITalkable
     {
-        private const double HUNGER_THRESHOLD_HOURS = 8.0;
-
         public Snake() : base()
         {
         }
@@ -17,26 +15,30 @@ namespace AnimalSM.Core.models
 
         public void Move()
         {
-            double hoursAfterEating = (DateTime.Now - LastFeedingTime).TotalHours;
-            if (hoursAfterEating >= HUNGER_THRESHOLD_HOURS)
+            if (!CanMove())
             {
                 IsHappy = false;
-                Console.WriteLine($"{Name} is too hungry to move, but can crawl slowly");
+                NotifyStatusChanged($"{Name} is too hungry to move, but can crawl slowly.");
             }
             else
             {
-                Console.WriteLine($"{Name} crawling in a terrarium");
+                NotifyStatusChanged($"{Name} crawling in a terrarium.");
             }
         }
 
         protected override void OnEat()
         {
-            Console.WriteLine($"{Name} eats and hissing");
+            NotifyStatusChanged($"{Name} eats and hissing.");
         }
 
         public override void Sleep()
         {
-            Console.WriteLine($"{Name} sleeps and hissing.");
+            NotifyStatusChanged($"{Name} sleeps and hissing.");
+        }
+
+        public void Talk()
+        {
+            NotifyStatusChanged($"{Name} hisses: Ssssss...");
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace AnimalSM.Core.models
 {
-    public class Cat : Animal, IMovable
+    public class Cat : Animal, IMovable, ITalkable
     {
         public Cat() : base()
         {
@@ -17,22 +17,31 @@ namespace AnimalSM.Core.models
             if (!CanMove())
             {
                 IsHappy = false;
-                Console.WriteLine($"{Name} is too hungry to run, but can walk slowly.");
+                NotifyStatusChanged($"{Name} is too hungry to run, but can walk slowly.");
             }
             else
             {
-                Console.WriteLine($"{Name} runs on his 4 paws in the house.");
+                IsHappy = true;
+                NotifyStatusChanged($"{Name} runs on his 4 paws in the house.");
             }
         }
 
         protected override void OnEat()
         {
-            Console.WriteLine($"{Name} eats and purrs.");
+            IsHappy = true;
+            NotifyStatusChanged($"{Name} eats and purrs.");
         }
 
         public override void Sleep()
         {
-            Console.WriteLine($"{Name} sleeps and purrs.");
+            IsTooTired = false;
+            IsHappy = true;
+            NotifyStatusChanged($"{Name} sleeps and purrs.");
+        }
+
+        public void Talk()
+        {
+            NotifyStatusChanged($"{Name} says: Meow!");
         }
     }
 }

@@ -1,15 +1,18 @@
-﻿using AnimalSM.Core.interfaces;
-using System;
+﻿using System;
 
 namespace AnimalSM.Core.models
 {
-    public abstract class Animal 
+    public abstract class Animal
     {
         public string Name { get; protected set; }
         public bool IsAlive { get; protected set; }
         public bool IsHappy { get; protected set; }
         public DateTime LastFeedingTime { get; protected set; }
         protected bool IsTooTired { get; set; }
+
+        public event Action? OnFed;
+        public event Action? OnDied;
+        public event Action<string>? OnStatusChanged;
 
         protected Animal()
         {
@@ -25,25 +28,25 @@ namespace AnimalSM.Core.models
             this.IsTooTired = false;
         }
 
-        public event Action? OnFed;
-        public event Action? OnDied;
+        protected void NotifyStatusChanged(string message)
+        {
+            OnStatusChanged?.Invoke(message);
+        }
 
         public virtual void Eat()
         {
             if (!IsAlive)
             {
-                Console.WriteLine("the dead don't eat");
-                
+                NotifyStatusChanged($"{Name} is dead and cannot eat.");
                 return;
             }
-
-
 
             this.LastFeedingTime = DateTime.Now;
             this.IsHappy = true;
             this.IsTooTired = false;
+
             OnFed?.Invoke();
-            if (!IsAlive) return;
+            NotifyStatusChanged($"{Name} has been fed.");
             OnEat();
         }
 
@@ -51,21 +54,30 @@ namespace AnimalSM.Core.models
 
         public virtual void Sleep()
         {
-            Console.WriteLine($"{Name} is sleeping");
+            IsTooTired = false;
+            IsHappy = true;
+            NotifyStatusChanged($"{Name} is sleeping.");
         }
 
         public virtual void Died()
         {
             IsAlive = false;
-            Console.WriteLine($"{this.Name} the {GetType().Name.ToLower()} died(((");
+            NotifyStatusChanged($"{this.Name} the {GetType().Name.ToLower()} died.");
             OnDied?.Invoke();
+        }
+
+        public virtual void ReceiveCleaning()
+        {
+            IsHappy = true;
+            NotifyStatusChanged($"{Name}'s living area is now clean.");
         }
 
         protected virtual bool CanMove()
         {
-            if ((int)(DateTime.Now - this.LastFeedingTime).TotalHours >= 5 )
+            if ((DateTime.Now - this.LastFeedingTime).TotalHours >= 8)
             {
                 SetTooHungry();
+                return false;
             }
             return !IsTooTired;
         }
@@ -74,6 +86,7 @@ namespace AnimalSM.Core.models
         {
             IsTooTired = true;
             IsHappy = false;
+            NotifyStatusChanged($"{Name} is too hungry.");
         }
     }
 }

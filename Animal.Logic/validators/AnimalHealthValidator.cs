@@ -10,6 +10,8 @@ namespace AnimalSM.Logic.validators
 
         private readonly IOwner _owner;
 
+        public event Action<string>? NotificationRaised;
+
         public AnimalHealthValidator(IOwner owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -26,21 +28,20 @@ namespace AnimalSM.Logic.validators
             {
                 _owner.Pet.OnFed += HandlePetFed;
                 _owner.Pet.OnDied += HandlePetDied;
+                _owner.Pet.OnStatusChanged += HandlePetStatusChanged;
             }
+        }
+
+        private void HandlePetStatusChanged(string message)
+        {
+            NotificationRaised?.Invoke($"[Pet] {message}");
         }
 
         private void HandlePetFed()
         {
-            CheckOfTheDay();
             CurrentFoodIntake++;
 
-            Console.WriteLine($"[Validator] The animal ate. Portions for today: {CurrentFoodIntake}");
-
-            if (CurrentFoodIntake > MAX_FOOD_INTAKE)
-            {
-                Console.WriteLine("[Validator] RE-FEEDING!");
-                _owner.Pet.Died();
-            }
+            NotificationRaised?.Invoke($"[Validator] The animal ate. Portions today: {CurrentFoodIntake}/{MAX_FOOD_INTAKE}");
         }
 
         private void HandlePetDied()
@@ -49,7 +50,10 @@ namespace AnimalSM.Logic.validators
             {
                 _owner.Pet.OnFed -= HandlePetFed;
                 _owner.Pet.OnDied -= HandlePetDied;
+                _owner.Pet.OnStatusChanged -= HandlePetStatusChanged;
             }
+
+            NotificationRaised?.Invoke($"[Validator] Pet of owner '{_owner.Name}' died.");
         }
 
         public void CheckOfTheDay()
@@ -68,31 +72,35 @@ namespace AnimalSM.Logic.validators
 
             if (_owner.Pet.IsAlive)
             {
-                Console.WriteLine($"The {_owner.Pet.GetType().Name} named {_owner.Pet.Name} is alive.");
+                NotificationRaised?.Invoke($"The {_owner.Pet.GetType().Name} named {_owner.Pet.Name} is alive.");
             }
         }
 
         public void PetFeeding()
         {
-            if (_owner.Pet == null || !_owner.Pet.IsAlive) return;
+            if (_owner.Pet == null || !_owner.Pet.IsAlive)
+            {
+                NotificationRaised?.Invoke("[Validator] Feeding aborted: pet missing or dead.");
+                return;
+            }
+
+            CheckOfTheDay();
+
+            if (CurrentFoodIntake >= MAX_FOOD_INTAKE)
+            {
+                NotificationRaised?.Invoke($"[Validator] {_owner.Pet.Name} is completely full and refuses to eat anymore today!");
+                return;
+            }
 
             var hours = (DateTime.Now - _owner.Pet.LastFeedingTime).TotalHours;
             if (hours >= 24)
             {
-                Console.WriteLine("[Validator] Too late... The animal died of hunger..");
+                NotificationRaised?.Invoke("[Validator] Too late... The animal died of hunger.");
                 _owner.Pet.Died();
                 return;
             }
 
             _owner.Feed();
         }
-    }
-
-    public class TestProperties
-    {
-        public string FirstName;
-        internal string LastName;
-        protected int Age;
-        private string PhoneNumber;
     }
 }

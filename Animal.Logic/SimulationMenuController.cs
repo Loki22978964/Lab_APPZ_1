@@ -1,4 +1,5 @@
 using AnimalSM.Core.interfaces;
+using AnimalSM.Core.services;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,6 +19,8 @@ namespace AnimalSM.Logic
         public SimulationMenuController(AnimalSimulationService service)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
+
+            _service.OnServiceMessage += message => Console.WriteLine(message);
         }
 
         public void Run()
@@ -249,6 +252,17 @@ namespace AnimalSM.Logic
                 {
                     Console.WriteLine("Pet: none");
                 }
+            }
+
+            Console.WriteLine($"\n Animals without an owner\n");
+
+            for(int i = 0; i < _service.WildAnimal.Count; i++)
+            {
+                var wildAnimal = _service.WildAnimal[i];
+                Console.WriteLine($"Pet: {wildAnimal.Name} ({wildAnimal.GetType().Name})");
+                Console.WriteLine($"  Alive: {(wildAnimal.IsAlive ? "Yes" : "No")}");
+                Console.WriteLine($"  Happy: {(wildAnimal.IsHappy ? "Yes" : "No")}");
+                Console.WriteLine($"  Last feeding: {wildAnimal.LastFeedingTime:yyyy-MM-dd HH:mm:ss}");
             }
         }
 

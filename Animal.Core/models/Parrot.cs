@@ -1,27 +1,23 @@
 ﻿using AnimalSM.Core.interfaces;
+using AnimalSM.Core.models;
 
 namespace AnimalSM.Core.models
 {
-    public class Parrot : Animal, IMovable, IFlyable
+    public class Parrot : Animal, IMovable, IFlyable, ITalkable
     {
-        public Parrot() : base()
-        {
-        }
-
-        public Parrot(string name) : base(name)
-        {
-        }
+        public Parrot() : base() { } 
+        public Parrot(string name) : base(name) { }
 
         public void Move()
         {
             if (!CanMove())
             {
                 IsHappy = false;
-                Console.WriteLine($"{Name} is too hungry to walk, but can walk slowly");
+                NotifyStatusChanged($"{Name} is too hungry to walk fast, but can walk slowly.");
             }
             else
             {
-                Console.WriteLine($"{Name} the parrot walks on his own two legs");
+                NotifyStatusChanged($"{Name} the parrot walks on his own two legs.");
             }
         }
 
@@ -30,22 +26,27 @@ namespace AnimalSM.Core.models
             if (!CanMove())
             {
                 IsHappy = false;
-                Console.WriteLine($"{Name} is too hungry to fly, but can walk slowly");
+                NotifyStatusChanged($"{Name} is too hungry to fly, but can walk slowly.");
             }
             else
             {
-                Console.WriteLine($"{Name} is flying in the house");
+                NotifyStatusChanged($"{Name} is flying in the house.");
             }
         }
 
         protected override void OnEat()
         {
-            Console.WriteLine($"{Name} eats and chirps");
+            NotifyStatusChanged($"{Name} eats and chirps.");
         }
 
         public override void Sleep()
         {
-            Console.WriteLine($"{Name} sleeps and NOT chirping");
+            NotifyStatusChanged($"{Name} sleeps and is NOT chirping.");
+        }
+
+        public void Talk()
+        {
+            NotifyStatusChanged($"{Name} says: Hello! I'm a parrot!");
         }
     }
 }

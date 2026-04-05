@@ -10,9 +10,13 @@ namespace AnimalSM.Logic
     public class AnimalSimulationService
     {
         private readonly List<IOwner> _owners = new();
+        private readonly List<Animal> _wildAnimals = new();
+
         private readonly IAnimalFactory _animalFactory;
         private readonly IOwnerFactory _ownerFactory;
         private readonly Dictionary<Guid, AnimalHealthValidator> _validators = new();
+
+        public event Action<string>? OnServiceMessage;
 
         public AnimalSimulationService(
             IAnimalFactory animalFactory,
@@ -23,160 +27,117 @@ namespace AnimalSM.Logic
         }
 
         public IReadOnlyList<IOwner> Owners => _owners.AsReadOnly();
-
+        public IReadOnlyList<Animal> WildAnimal => _wildAnimals.AsReadOnly();
         public IReadOnlyList<int> AvailableAnimalTypeIds => _animalFactory.GetAvailableAnimalTypeIds().ToList();
+
+        private void SetupValidatorForOwner(IOwner owner)
+        {
+            if (!_validators.ContainsKey(owner.Id))
+            {
+                var validator = new AnimalHealthValidator(owner);
+                
+                validator.NotificationRaised += message => OnServiceMessage?.Invoke(message);
+                _validators[owner.Id] = validator;
+            }
+        }
 
         public void AddOwnerWithAnimal(string ownerName, int animalTypeId, string petName)
         {
             if (string.IsNullOrWhiteSpace(ownerName))
             {
-                Console.WriteLine("Owner name cannot be empty!");
+                OnServiceMessage?.Invoke("Error: Owner name cannot be empty!");
                 return;
             }
 
             var animal = _animalFactory.CreateAnimal(animalTypeId, petName);
             if (animal == null)
             {
-                Console.WriteLine("Failed to create animal!");
+                OnServiceMessage?.Invoke("Error: Failed to create animal!");
                 return;
             }
 
             var owner = _ownerFactory.Create(ownerName, animal);
             _owners.Add(owner);
+            SetupValidatorForOwner(owner);
 
-            _validators[owner.Id] = new AnimalHealthValidator(owner);
-
-            Console.WriteLine($"\n✓ Owner '{ownerName}' with animal '{animal.Name}' successfully added!");
+            OnServiceMessage?.Invoke($"\n✓ Owner '{ownerName}' with animal '{animal.Name}' successfully added!");
         }
 
         public void AddAnimalToExistingOwner(int ownerIndex, int animalTypeId, string petName)
         {
             if (ownerIndex < 1 || ownerIndex > _owners.Count)
             {
-                Console.WriteLine("Invalid owner number!");
+                OnServiceMessage?.Invoke("Error: Invalid owner number!");
                 return;
             }
 
             var selectedOwner = _owners[ownerIndex - 1];
             var animal = _animalFactory.CreateAnimal(animalTypeId, petName);
-            if (animal == null)
-            {
-                Console.WriteLine("Failed to create animal!");
-                return;
-            }
+            if (animal == null) return;
 
             selectedOwner.AdoptPet(animal);
+            SetupValidatorForOwner(selectedOwner);
 
-            if (!_validators.ContainsKey(selectedOwner.Id))
-            {
-                _validators[selectedOwner.Id] = new AnimalHealthValidator(selectedOwner);
-            }
-
-            Console.WriteLine($"\n✓ Animal '{animal.Name}' successfully added to owner '{selectedOwner.Name}'!");
+            OnServiceMessage?.Invoke($"\n✓ Animal '{animal.Name}' successfully added to owner '{selectedOwner.Name}'!");
         }
 
         public void AddAnimalOnly(int animalTypeId, string petName)
         {
             var animal = _animalFactory.CreateAnimal(animalTypeId, petName);
-            if (animal == null)
-            {
-                Console.WriteLine("Failed to create animal!");
-                return;
-            }
+            if (animal == null) return;
 
-            var owner = _ownerFactory.Create();
-            owner.AdoptPet(animal);
-            _owners.Add(owner);
+            _wildAnimals.Add(animal);
 
-            _validators[owner.Id] = new AnimalHealthValidator(owner);
-
-            Console.WriteLine($"\n✓ Animal '{animal.Name}' added! Owner: '{owner.Name}' (automatically created)");
+            OnServiceMessage?.Invoke($"\n✓ Animal '{animal.Name}' added!");
         }
 
         public IOwner? SelectOwnerWithPet(int index)
         {
             var ownersWithPets = _owners.Where(o => o.Pet != null).ToList();
-            if (index < 1 || index > ownersWithPets.Count)
-                return null;
+            if (index < 1 || index > ownersWithPets.Count) return null;
             return ownersWithPets[index - 1];
         }
 
         public void FeedPet(IOwner owner)
         {
             if (owner == null) return;
-
-            if (!_validators.TryGetValue(owner.Id, out var validator))
-            {
-                validator = new AnimalHealthValidator(owner);
-                _validators[owner.Id] = validator;
-            }
-
-            validator.PetFeeding();
+            SetupValidatorForOwner(owner);
+            _validators[owner.Id].PetFeeding();
         }
 
         public void CleanPet(IOwner owner)
         {
-            if (owner.Pet == null)
-            {
-                Console.WriteLine("Owner has no pet!");
-                return;
-            }
-            Console.WriteLine($"Cleaning after {owner.Pet.Name}...");
-            Console.WriteLine($"Cleaning after {owner.Pet.Name} completed!");
+            if (owner.Pet == null) return;
+            
+            owner.Pet.ReceiveCleaning();
+            OnServiceMessage?.Invoke($"[Service] You cleaned up after {owner.Pet.Name}. It is now happy!");
         }
 
         public void ExecuteAction(IOwner owner, int actionId)
         {
-            if (owner.Pet == null)
-            {
-                Console.WriteLine("Owner has no pet!");
-                return;
-            }
+            if (owner.Pet == null) return;
 
             switch (actionId)
             {
                 case 1:
-                    ExecuteMove(owner.Pet);
+                    if (owner.Pet is IMovable movable) movable.Move();
+                    else OnServiceMessage?.Invoke($"{owner.Pet.Name} cannot move in this way.");
                     break;
                 case 2:
-                    ExecuteFly(owner.Pet);
+                    if (owner.Pet is IFlyable flyable) flyable.Fly();
+                    else OnServiceMessage?.Invoke($"{owner.Pet.Name} cannot fly.");
                     break;
                 case 3:
-                    ExecuteSleep(owner.Pet);
+                    owner.Pet.Sleep();
+                    break;
+                case 4:
+                    if (owner.Pet is ITalkable talkable) talkable.Talk();
+                    else OnServiceMessage?.Invoke($"{owner.Pet.Name} cannot talk.");
                     break;
                 default:
-                    Console.WriteLine("Invalid action choice!");
+                    OnServiceMessage?.Invoke("Invalid action choice!");
                     break;
             }
-        }
-
-        private void ExecuteMove(Animal pet)
-        {
-            if (pet is IMovable movable)
-            {
-                movable.Move();
-            }
-            else
-            {
-                Console.WriteLine($"{pet.Name} cannot move in this way.");
-            }
-        }
-
-        private void ExecuteFly(Animal pet)
-        {
-            if (pet is IFlyable flyable)
-            {
-                flyable.Fly();
-            }
-            else
-            {
-                Console.WriteLine($"{pet.Name} cannot fly.");
-            }
-        }
-
-        private void ExecuteSleep(Animal pet)
-        {
-            pet.Sleep();
         }
 
         public void UpdateStatus()
